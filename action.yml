@@ -1,0 +1,58 @@
+name: 'Godot build dependencies'
+description: 'Install Godot build dependencies'
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Setup chocolatey
+      shell: powershell
+      run: |
+        $chocoPath = "$env:ProgramData\chocolatey\bin"
+
+        $chocoCmd = Get-Command 'choco' -ErrorAction 'SilentlyContinue'
+        if (-not $chocoCommand) {
+          if (-not (Test-Path "$chocoPath\choco.exe")) {
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+            iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          }
+
+          $env:PATH += ";$chocoPath"
+          Add-Content -Path $env:GITHUB_PATH -Value $chocoPath
+        }
+
+        Write-Host "Chocolatey version: $( choco -v )"
+
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13.2'
+
+    - name: Install chocolatey packages
+      shell: powershell
+      run: |
+        choco install -y --no-progress git powershell-core
+        Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\Git\cmd"
+        Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\PowerShell\7"
+
+    - name: Install scoop packages
+      uses: MinoruSekine/setup-scoop@v4.0.1
+      with:
+        buckets: extras
+        apps:
+          emscripten
+          gcc
+          make
+          mingw
+          scons
+
+    - name: Add scoop shims folder to path
+      shell: powershell
+      run: |
+        Add-Content -Path $env:GITHUB_PATH -Value "$env:USERPROFILE\scoop\shims"
+
+    - name: Install emscripten ${{ env.EMSCRIPTEN_VER }}
+      shell: powershell
+      run: |
+        emsdk install ${{ env.EMSCRIPTEN_VER }}
+        emsdk activate ${{ env.EMSCRIPTEN_VER }} --permanent
