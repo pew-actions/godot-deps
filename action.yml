@@ -31,7 +31,7 @@ runs:
     - name: Install chocolatey packages
       shell: powershell
       run: |
-        choco install -y --no-progress git powershell-core
+        choco install -y --no-progress git powershell-core gh
         Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\Git\cmd"
         Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\PowerShell\7"
 
