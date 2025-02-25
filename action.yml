@@ -34,6 +34,7 @@ runs:
         choco install -y --no-progress git powershell-core gh
         Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\Git\cmd"
         Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\PowerShell\7"
+        Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\GitHub CLI"
 
     - name: Install scoop packages
       uses: MinoruSekine/setup-scoop@v4.0.1
